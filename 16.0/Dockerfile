@@ -30,6 +30,7 @@ RUN apt-get update && \
         python3-watchdog \
         python3-xlrd \
         python3-xlwt \
+        vim \
         xz-utils \
     && curl -o wkhtmltox.deb -sSL https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.buster_amd64.deb \
     && echo 'ea8277df4297afc507c61122f3c349af142f31e5 wkhtmltox.deb' | sha1sum -c - \
@@ -53,15 +54,10 @@ RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bullseye-pgdg main' > /et
 # Install rtlcss (on Debian buster)
 RUN npm install -g rtlcss
 
-# Install Odoo
-ENV ODOO_VERSION 16.0
-ARG ODOO_RELEASE=20221104
-ARG ODOO_SHA=992e4f25439ce8adf4c235d3a3876f4191404ef8
-RUN curl -o odoo.deb -sSL http://nightly.odoo.com/${ODOO_VERSION}/nightly/deb/odoo_${ODOO_VERSION}.${ODOO_RELEASE}_all.deb \
-    && echo "${ODOO_SHA} odoo.deb" | sha1sum -c - \
-    && apt-get update \
-    && apt-get -y install --no-install-recommends ./odoo.deb \
-    && rm -rf /var/lib/apt/lists/* odoo.deb
+RUN --mount=type=bind,source=odoo-16-enterprise.deb,target=/tmp/odoo-16-enterprise.deb \
+    apt-get update \
+    && apt-get -y install --no-install-recommends /tmp/odoo-16-enterprise.deb \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
