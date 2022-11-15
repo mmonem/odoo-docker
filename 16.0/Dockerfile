@@ -54,10 +54,14 @@ RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bullseye-pgdg main' > /et
 # Install rtlcss (on Debian buster)
 RUN npm install -g rtlcss
 
-RUN --mount=type=bind,source=odoo-16-enterprise.deb,target=/tmp/odoo-16-enterprise.deb \
-    apt-get update \
-    && apt-get -y install --no-install-recommends /tmp/odoo-16-enterprise.deb \
-    && rm -rf /var/lib/apt/lists/*
+# Install Odoo
+# Requires python -m http.server --bind 172.17.0.1 7777
+ARG ODOO_SHA=e890d345b5a1a49dcbf54d98a6ed7dc03468b987
+RUN curl -o odoo.deb -sSL http://172.17.0.1:7777/odoo-16-enterprise.deb \
+    && echo "${ODOO_SHA} odoo.deb" | sha1sum -c - \
+    && apt-get update \
+    && apt-get -y install --no-install-recommends ./odoo.deb \
+    && rm -rf /var/lib/apt/lists/* odoo.deb
 
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
