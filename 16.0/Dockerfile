@@ -63,6 +63,10 @@ RUN curl -o odoo.deb -sSL http://172.17.0.1:7777/odoo-16-enterprise.deb \
     && apt-get -y install --no-install-recommends ./odoo.deb \
     && rm -rf /var/lib/apt/lists/* odoo.deb
 
+RUN apt-get update \
+    && apt-get -y install --no-install-recommends net-tools \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
 COPY ./odoo.conf /etc/odoo/
